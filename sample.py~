@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#優しい日本語コーパスの前処理のpreコードxlsxフィルをわかちがきしてtextファイルに保存
+import openpyxl as px
+import MeCab
+import re
+
+mecab = MeCab.Tagger ("-Owakati")
+
+path_w = './sample_out.txt'
+
+book = px.load_workbook('sample.xlsx')
+#name = book.get_sheet_names()
+#print(name)
+
+now = book.active
+ 
+for i in range(3):
+    some = "B" + str(i + 2)
+    s = now[some].value #指定した位置の要素
+    ss = re.sub(r'[^/w/s]','',s)
+    text = mecab.parse(ss)  #文を分かち書き
+    print(text)
+    i += 1
+    with open(path_w, mode='a') as f: #追記用でファイルオープンmode='w'
+        f.write(text + '\n')
+
+
