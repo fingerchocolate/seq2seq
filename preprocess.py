@@ -1,6 +1,8 @@
 #txtファイルを読み込んで分かち書きしたのをtxtファイルに書き込む
-#$ python3 preprocess.py (読み込みソースファイル).txt (書き込み用ソースファイル).txt　）(読み込み用ターゲットファイル).txt (書き込み用ターゲットファイル) \--vocab-file (平易化前後合わせたボキャファイル).txt
+#$ python3 preprocess.py (読み込みソース(平易化前)ファイル).txt (書き込み用ソースファイル).txt (読み込み用ターゲット(平易化後)ファイル).txt (書き込み用ターゲットファイル) \--vocab-file (書き込み用平易化前後合わせたボキャファイル).txt
 #これをtrain, testデータそれぞれに対して実行する.(但し, オプションのボキャファイルの作成はtrainのみ)
+#$ python3 preprocess.py original_test.txt original_test_prepro.txt simple_test.txt simple_test_prepro.txt
+#$ python3 preprocess.py original_train.txt original_train_prepro.txt simple_train.txt simple_train_prepro.txt \--vocab-file vocab_train.txt
 #chainer/seq2seqのtutorial的なの(英仏翻訳)/前処理wmt_preprocess.py
 #https://github.com/chainer/chainer/blob/master/examples/seq2seq/wmt_preprocess.py
 #原文は#(コメントアウト), 追加文は##　 途中からめんどくなってやってない
@@ -112,7 +114,7 @@ def proc_dataset(
                 f.write(word)
                 f.write('\n')
 
-                
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -137,10 +139,5 @@ def main():
         args.INPUT_SOUCE, args.OUTPUT_SOUCE, args.INPUT_TARGET, args.OUTPUT_TARGET, vocab_path=args.vocab_file,vocab_size=args.vocab_size)
 #        vocab_size=args.vocab_size, use_lower=args.lower)
 
-        
-
-
-
-        
 if __name__ == '__main__':
 	main()

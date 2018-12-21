@@ -23,7 +23,7 @@ change=[]#平易化されている文対のリスト
 book = px.load_workbook('T15-2018.2.28.xlsx')#xlsxファイル読み込み
 #book = px.load_workbook('mini.xlsx')#xlsxファイル読み込み
 active_sheet = book.active##アクティブシート
-n_lines = active_sheet.max_row - 1 
+n_lines = active_sheet.max_row - 1
 bar = progressbar.ProgressBar()
 reject_cell = []
 for i in range(n_lines):##
@@ -71,7 +71,7 @@ for i, line in enumerate(nochange): #test:train=1:N-1データ数に振り分け
         test.append(line)
     else:
         train.append(line)
-        
+
 for i, line in enumerate(change):
     if i % N == 0: #文の数
         test.append(line)
@@ -96,4 +96,3 @@ with io.open('original_train.txt', 'w', encoding= 'utf-8') as f:
                 f.write('\n')
                 f2.write(s_c)
                 f2.write('\n')
-

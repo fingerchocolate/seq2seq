@@ -1,8 +1,8 @@
-#python3 seq2seq.py --gpu=0 original_train_prepro2.txt simple_train_prepro2.txt \vocab_orisim.txt vocab_orisim.txt \--validation-source original_test_prepro.txt \--validation-target simple_test_prepro.txt
+#$ python3 seq2seq3.py --gpu=0 original_train_prepro.txt simple_train_prepro.txt \vocab_train.txt \-s snap_model
 #seq2seq.py&seq2seq2.pyで出力出来なかったbleuスコアをとりあえずprintしてくれるようになった
 #Classとして定義していたblue算出関数をmain()中のdefとして定義に変更
 #相変わらずLogReportのvalidation関連が出力されない件は未解決
-
+#max_target_sentence, max_source_sentenceは3単語以上でデータセットの90％を満たす最低単語数とした
 #https://github.com/chainer/chainer/blob/master/examples/seq2seq/seq2seq.py
 #!/usr/bin/env python
 
@@ -192,8 +192,9 @@ def main():
     parser = argparse.ArgumentParser(description='Chainer example: seq2seq')
     parser.add_argument('SOURCE', help='source sentence list')
     parser.add_argument('TARGET', help='target sentence list')
-    parser.add_argument('SOURCE_VOCAB', help='source vocabulary file')
-    parser.add_argument('TARGET_VOCAB', help='target vocabulary file')
+#    parser.add_argument('SOURCE_VOCAB', help='source vocabulary file')
+#    parser.add_argument('TARGET_VOCAB', help='target vocabulary file')
+    parser.add_argument('VOCAB', help='train vocabulary file')
     parser.add_argument('--validation-source',
                         help='source sentence list for validation')
     parser.add_argument('--validation-target',
@@ -223,12 +224,12 @@ def main():
     parser.add_argument('--min-source-sentence', type=int, default=1,
                         help='minimium length of source sentence')
 #    parser.add_argument('--max-source-sentence', type=int, default=50,
-    parser.add_argument('--max-source-sentence', type=int, default=14,##
+    parser.add_argument('--max-source-sentence', type=int, default=12,
                         help='maximum length of source sentence')
     parser.add_argument('--min-target-sentence', type=int, default=1,
                         help='minimium length of target sentence')
 #    parser.add_argument('--max-target-sentence', type=int, default=50,
-    parser.add_argument('--max-target-sentence', type=int, default=14,##
+    parser.add_argument('--max-target-sentence', type=int, default=12,##
                         help='maximum length of target sentence')
     parser.add_argument('--log-interval', type=int, default=200,
                         help='number of iteration to show log')
@@ -243,8 +244,8 @@ def main():
     # Load pre-processed dataset
     print('[{}] Loading dataset... (this may take several minutes)'.format(
         datetime.datetime.now()))
-    source_ids = load_vocabulary(args.SOURCE_VOCAB)
-    target_ids = load_vocabulary(args.TARGET_VOCAB)
+    source_ids = load_vocabulary(args.VOCAB)
+    target_ids = load_vocabulary(args.VOCAB)
 
     if args.use_dataset_api:
         # By using TextDataset, you can avoid loading whole dataset on memory.
@@ -354,7 +355,7 @@ def main():
             print('Validation target unknown ratio: %.2f%%' %
               (test_target_unknown * 100))
 
-            
+
         @chainer.training.make_extension()
         def translate(trainer):
             source, target = test_data[numpy.random.choice(len(test_data))]
@@ -368,7 +369,7 @@ def main():
             print('# expect : ' + target_sentence)
 
         @chainer.training.make_extension()
-        def CalculateBleu(trainer=trainer, model=model, test_data=test_data, key='validation/main/bleu', batch = 100, max_length=100, device=args.gpu):            
+        def CalculateBleu(trainer=trainer, model=model, test_data=test_data, key='validation/main/bleu', batch = 100, max_length=100, device=args.gpu):
             trigger = 1, 'epoch'
             priority = chainer.training.PRIORITY_WRITER
             with chainer.no_backprop_mode():
@@ -389,7 +390,7 @@ def main():
                 smoothing_function=bleu_score.SmoothingFunction().method1)
             chainer.report({key: bleu})
             print(bleu)
-            
+
         trainer.extend(
             translate, trigger=(args.validation_interval, 'iteration'))
 
