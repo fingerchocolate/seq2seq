@@ -1,8 +1,8 @@
 #txtファイルを読み込んで分かち書きしたのをtxtファイルに書き込む
-#$ python3 preprocess.py (読み込みソース(平易化前)ファイル).txt (書き込み用ソースファイル).txt (読み込み用ターゲット(平易化後)ファイル).txt (書き込み用ターゲットファイル) \--vocab-file (書き込み用平易化前後合わせたボキャファイル).txt
+#$ python3 preprocess.py (読み込みソース(平易化前)ファイル).txt (書き込み用ソースファイル).txt (読み込み用ターゲット(平易化後)ファイル).txt (書き込み用ターゲットファイル) \--vocab-file (書き込み用平易化前後合わせたボキャファイル).txt \--cut_off (足切りとする単語の出現回数) )
 #これをtrain, testデータそれぞれに対して実行する.(但し, オプションのボキャファイルの作成はtrainのみ)
 #$ python3 preprocess.py original_test.txt original_test_prepro.txt simple_test.txt simple_test_prepro.txt
-#$ python3 preprocess.py original_train.txt original_train_prepro.txt simple_train.txt simple_train_prepro.txt \--vocab-file vocab_train.txt
+#$ python3 preprocess.py original_train.txt original_train_prepro.txt simple_train.txt simple_train_prepro.txt \--vocab-file vocab_train.txt \--cut_off (足切りとする単語の出現回数))
 #chainer/seq2seqのtutorial的なの(英仏翻訳)/前処理wmt_preprocess.py
 #https://github.com/chainer/chainer/blob/master/examples/seq2seq/wmt_preprocess.py
 #原文は#(コメントアウト), 追加文は##　 途中からめんどくなってやってない
@@ -37,7 +37,6 @@ def split_sentence(s): #sentenceの分かち書き
     for word in s.strip().split():##
         words.extend(split_pattern.split(word))
     words = [w for w in words if w]
-    print(words)###############かくにん
     return words
 
 def count_lines(path): #行数のカウント
@@ -76,13 +75,12 @@ def read_file(path): #ファイルの読み込み
 #def proc_dataset(
 #        path, outpath, vocab_path=None, vocab_size=None, use_lower=False):
 def proc_dataset(
-        path_souce, outpath_souce, path_target, outpath_target, vocab_path=None, vocab_size=None):
+        path_souce, outpath_souce, path_target, outpath_target, vocab_path=None, vocab_size=None, cut_off=None):
     token_count = 0
     counts = collections.Counter()
     with io.open(outpath_souce, 'w', encoding='utf-8') as f:
         for words_souce in read_file(path_souce):
             line_souce = ' '.join(words_souce)
-            print(len(words_souce))#########################
             f.write(line_souce)
             f.write('\n')
             #######
@@ -97,7 +95,6 @@ def proc_dataset(
     with io.open(outpath_target, 'w', encoding='utf-8') as f:
         for words_target in read_file(path_target):
             line_target = ' '.join(words_target)
-            print(len(words_target))#########################
             f.write(line_target)
             f.write('\n')
             #######
@@ -108,7 +105,8 @@ def proc_dataset(
                     counts[word] += 1
 
     if vocab_path and vocab_size:
-        vocab = [word for (word, _) in counts.most_common(vocab_size)]
+#        vocab = [word for (word, _) in counts.most_common(vocab_size)]
+        vocab = [word for word, count in counts.items() if count > cut_off]
         with io.open(vocab_path, 'w', encoding='utf-8') as f:
             for word in vocab:
                 f.write(word)
@@ -131,12 +129,16 @@ def main():
     parser.add_argument(
         '--vocab-size', type=int, default=40000,
         help='size of vocabulary file')
+    parser.add_argument(
+        '--cut-off', type=int, default=0,
+                help='cut off low occurrences wards')##
 #    parser.add_argument(
 #        '--lower', action='store_true', help='use lower case')
     args = parser.parse_args()
 
     proc_dataset(
-        args.INPUT_SOUCE, args.OUTPUT_SOUCE, args.INPUT_TARGET, args.OUTPUT_TARGET, vocab_path=args.vocab_file,vocab_size=args.vocab_size)
+        args.INPUT_SOUCE, args.OUTPUT_SOUCE, args.INPUT_TARGET, args.OUTPUT_TARGET, vocab_path=args.vocab_file,vocab_size=args.vocab_size,
+        cut_off = args.cut_off)
 #        vocab_size=args.vocab_size, use_lower=args.lower)
 
 if __name__ == '__main__':
