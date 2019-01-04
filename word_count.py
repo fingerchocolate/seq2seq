@@ -111,19 +111,20 @@ def main():
         'INPUT', help='input sentence data')
     parser.add_argument(
         'OUTPUT', help='output sentence data')
-    parser.add_argument(
-        '--vocab-file', help='vocabulary file to save')
-    parser.add_argument(
-        '--vocab-size', type=int, default=40000,
-        help='size of vocabulary file')
+#    parser.add_argument(
+#        '--vocab-file', help='vocabulary file to save')
+#    parser.add_argument(
+#        '--vocab-size', type=int, default=40000,
+#        help='size of vocabulary file')
 #    parser.add_argument(
 #        '--lower', action='store_true', help='use lower case')
     args = parser.parse_args()
 
     proc_dataset(
-        args.INPUT, args.OUTPUT, vocab_path=args.vocab_file,
-        vocab_size=args.vocab_size)
+        args.INPUT, args.OUTPUT,
+#        vocab_path=args.vocab_file,
+#        vocab_size=args.vocab_size
 #        vocab_size=args.vocab_size, use_lower=args.lower)
-        
+        )
 if __name__ == '__main__':
 	main()
